@@ -1,0 +1,55 @@
+flow_features:
+  numeric:
+    - "duration"
+    - "orig_bytes"
+    - "resp_bytes"
+    - "orig_pkts"
+    - "resp_pkts"
+    - "orig_ip_bytes"
+    - "resp_ip_bytes"
+  rates:
+    - "orig_bytes_per_sec"
+    - "resp_bytes_per_sec"
+    - "pkts_per_sec"
+  iat_stats:
+    - "orig_iat_mean"
+    - "orig_iat_std"
+    - "orig_iat_min"
+    - "orig_iat_max"
+    - "resp_iat_mean"
+    - "resp_iat_std"
+  entropy:
+    - "orig_payload_entropy"
+    - "resp_payload_entropy"
+
+categorical:
+  - "proto"
+  - "service"
+  - "conn_state"
+  - "dns_qtype"
+  - "http_method"
+  - "http_version"
+  - "ssl_version"
+  - "ssl_cipher"
+
+host_windows:
+  - "1h"
+  - "6h"
+  - "24h"
+
+host_features:
+  - "unique_dst_ports"
+  - "unique_dst_ips"
+  - "failed_connections"
+  - "total_bytes_sent"
+  - "total_bytes_recv"
+
+temporal:
+  - "hour_of_day"
+  - "day_of_week"
+  - "is_weekend"
+
+encoding:
+  categorical: "target"   # Target encoding for high-cardinality
+  scaling: "robust"       # RobustScaler (outlier-resistant)
+  missing: "median"
