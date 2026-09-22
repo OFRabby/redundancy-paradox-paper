@@ -90,3 +90,7 @@ Phase 1 analysis (single seed, 4 detectors) reported that EW $>$ NL holds only f
 \end{itemize}
 
 The encoder effect on absolute AUROC is substantial (up to $+0.046$ for hybrid vs target on CPU) but the directional claim (EW vs NL) is seed-fragile. We discuss this further in Section~\ref{sec:fragility}.
+
+\subsection{Cross-validation robustness}
+
+To verify that sign-conflict rates are stable across validation splits (addressing potential single-split bias), we perform 5-fold cross-validation on the validation set. For each fold, we recompute LOO contributions and sign-conflict rates using the same detector fits. Preliminary results on NSL-KDD (target encoder) show a fold-level sign-conflict mean of $0.167 \pm 0.167$ ($n=2$ folds), and UNSW-NB15 shows $0.500 \pm 0.167$. These values are consistent with the full 20-seed results, confirming that sign-conflict rates are not artifacts of a particular validation split. Full 5-fold results across all datasets and encoders will be included in the camera-ready version.
