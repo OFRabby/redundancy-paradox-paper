@@ -1,0 +1,22 @@
+\section{Introduction}
+\label{sec:introduction}
+
+\subsection*{Paragraph 1: The practical problem}
+
+Network intrusion detection systems (NIDS) process millions of connection records daily, and no single anomaly detector captures all attack modalities~\cite{ahmed2016survey}. Practitioners therefore construct ensembles of heterogeneous detectors---isolation forests for distributional anomalies~\cite{liu2012isolation}, local outlier factors for density-based anomalies~\cite{breunig2000lof}, one-class SVMs for boundary-based anomalies~\cite{scholkopf2001estimating}, and autoencoders for reconstruction-based anomalies~\cite{kingma2014autoencoding}---and combine their outputs through rank averaging. The critical construction decision is \emph{pruning}: determining which detectors to retain. Including a harmful detector degrades ensemble performance, while excluding a useful one reduces coverage. Leave-one-out (LOO) contribution, which measures each detector's marginal impact by comparing ensemble performance with and without it, is the dominant pruning heuristic in this domain.
+
+\subsection*{Paragraph 2: The gap}
+
+Despite widespread adoption, LOO's diagnostic reliability has never been validated against known ground truth. The fundamental assumption---that a negative LOO contribution indicates a harmful detector---conflates two distinct failure modes. \emph{Genuine detector harm} occurs when a detector actively degrades ensemble performance. \emph{Detector redundancy} occurs when a detector provides no new information, causing its removal to have negligible or negative effect on a different metric. Existing work reports dataset-dependent and encoder-dependent LOO behavior without explaining the underlying mechanisms~\cite{pang2021deep}. No controlled experiment has measured LOO's ability to distinguish harmful from redundant detectors when both are known.
+
+\subsection*{Paragraph 3: Our approach}
+
+We address this gap through a two-phase evaluation. First, we construct a synthetic benchmark with known detector roles---beneficial, redundant, harmful, and noisy---and measure LOO's diagnostic accuracy against ground truth. Across 2,000 ensemble configurations, we quantify LOO's recall for each detector role and characterize the rate at which LOO's validation signal conflicts with held-out test effect. Second, we evaluate LOO on real data using 3 NIDS datasets (CICIDS2017, UNSW-NB15, NSL-KDD), 3 categorical encoders (target, hybrid, ordinal), and 20 random seeds (180 configurations total), measuring sign-conflict rates, ensemble AUROC, and the sensitivity of LOO's directional claims to seed variation.
+
+\subsection*{Paragraph 4: Three contributions}
+
+Our analysis yields three contributions. First, \emph{ground-truth diagnostic validation}: LOO detects harmful detectors with perfect recall (1.000) but misclassifies 67\% of redundant detectors as beneficial (recall 0.327), a pattern we term the \emph{redundancy paradox}. The sign-conflict rate between LOO's validation signal and held-out test effect is 48\%, independent of ensemble correlation structure (Spearman $\rho \approx 0$). Second, \emph{mechanism identification}: we identify the root cause---LOO cannot distinguish ``removes useful information'' from ``changes rank distribution''---and propose epsilon-VRG, a guardrail that reduces redundancy false-pruning by 66\% without retaining harmful detectors. Third, \emph{seed-fragility meta-finding}: LOO's directional claims are inherently seed-sensitive. Phase 1's encoder-dependent equal-weight superiority over naive-LOO on NSL-KDD does not replicate across 20 seeds (observed in only 4 of 20), demonstrating that single-seed evaluations can produce misleading conclusions.
+
+\subsection*{Paragraph 5: Roadmap}
+
+The remainder of this paper is organized as follows. Section~\ref{sec:related} reviews related work on ensemble pruning, leave-one-out diagnostics, and leakage in unsupervised learning. Section~\ref{sec:formulation} formalizes the rank-average ensemble, LOO contribution, sign conflict, and the epsilon-VRG selection rule. Section~\ref{sec:phase2} presents the controlled ground-truth study with synthetic benchmarks. Section~\ref{sec:phase3} reports the real-data multi-dataset evaluation. Section~\ref{sec:fragility} analyzes seed fragility and the non-replication of Phase 1 findings. Section~\ref{sec:discussion} discusses implications and limitations. Section~\ref{sec:guidelines} provides practical guidelines for NIDS ensemble construction. Section~\ref{sec:conclusion} concludes.

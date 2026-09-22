@@ -1,0 +1,26 @@
+\section{Related Work}
+\label{sec:related}
+
+\subsection{Ensemble pruning for anomaly detection}
+
+Ensemble methods combine multiple base learners to improve predictive performance and robustness~\cite{zhou2002ensembles}. In anomaly detection, ensembles of heterogeneous detectors are standard practice, as different detector families capture complementary anomaly patterns~\cite{aggarwal2015outlier}. The ensemble pruning problem---selecting a subset of detectors to retain---has been studied primarily in supervised settings, where methods such as boosting~\cite{breiman1966bagging}, bagging, and selective ensemble optimization reduce ensemble size while preserving accuracy.
+
+In unsupervised anomaly detection, pruning criteria differ because held-out labels are unavailable during selection. The dominant heuristic is leave-one-out (LOO) contribution, which estimates each detector's marginal impact by comparing ensemble performance with and without it on a validation set. Existing NIDS studies apply LOO pruning without ground-truth validation, reporting that the approach ``works well'' on specific datasets without characterizing its failure modes~\cite{mollmark2021nids}. No prior work has measured LOO's diagnostic accuracy when detector roles (harmful, redundant, beneficial) are known.
+
+\subsection{Leave-one-out and marginal contribution}
+
+The leave-one-out principle originates from Jackknife estimation in statistics, where removing each observation and re-estimating provides bias-corrected estimates. In ensemble learning, LOO contribution measures each member's marginal impact: $C_i = Q_{\text{all}} - Q_{-i}$, where $Q_{\text{all}}$ is the full ensemble score and $Q_{-i}$ is the score without detector $i$.
+
+LOO contribution is related to, but distinct from, Shapley values~\cite{davis2006relationship}. While Shapley values consider all possible subsets and provide a fair allocation of ensemble performance, LOO evaluates only singleton removals. This computational efficiency ($k$ evaluations versus $2^k$) makes LOO practical for real-time NIDS but ignores interaction effects between detectors. Our work reveals a fundamental limitation of LOO that is not addressed by either approach: the sign of $C_i$ can reflect rank-distribution changes rather than genuine detector quality.
+
+\subsection{Leakage in unsupervised ML}
+
+Label leakage---the inadvertent inclusion of test information in training---is well-studied in supervised learning but under-appreciated in unsupervised settings. In NIDS feature engineering, categorical encoders such as TargetEncoder incorporate label information into feature transformations. When these features are used by unsupervised detectors, the resulting anomaly scores may reflect leaked labels rather than genuine anomaly patterns.
+
+Prior work on cross-fitting and sample-splitting addresses leakage in supervised prediction~\cite{benjamini1995controlling}, but the propagation of leakage through unsupervised pipelines has not been systematically studied. Our Phase 1 analysis reveals that TargetEncoder leakage on NSL-KDD produces encoder-dependent ranking reversals between equal-weight and naive-LOO ensembles, a finding that does not replicate with clean encoders.
+
+\subsection{NIDS ensembles}
+
+Three benchmark datasets dominate NIDS research: CICIDS2017~\cite{mollmark2021nids}, UNSW-NB15~\cite{moustafa2015unsw}, and NSL-KDD~\cite{tavallaee2009nsl}. Detector families include Isolation Forest (IF)~\cite{liu2012isolation}, Local Outlier Factor (LOF)~\cite{breunig2000lof}, One-Class SVM (OCSVM)~\cite{scholkopf2001estimating}, Autoencoder (AE)~\cite{kingma2014autoencoding}, ECOD~\cite{li2019ecod}, and HBOS~\cite{aggarwal2015outlier}. Rank-averaging aggregation combines detector outputs by normalizing each score to its percentile rank and averaging across detectors.
+
+Despite extensive benchmarking, no systematic evaluation of ensemble pruning diagnostics exists for NIDS. Studies report per-dataset results without cross-dataset validation, and pruning decisions are evaluated on the same data used for selection. Our work fills this gap with controlled ground-truth validation and multi-dataset evaluation with proper train/val/test separation.

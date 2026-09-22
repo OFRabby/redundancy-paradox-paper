@@ -1,0 +1,58 @@
+\section{Problem Formulation}
+\label{sec:formulation}
+
+\subsection{Rank-average ensemble}
+
+Let $\{s_1(\mathbf{x}), s_2(\mathbf{x}), \ldots, s_k(\mathbf{x})\}$ denote the anomaly score vectors from $k$ detectors applied to a dataset $\mathbf{X} \in \mathbb{R}^{n \times d}$. The rank-average ensemble computes the ensemble score as:
+\begin{equation}
+\text{rank\_avg}(\mathbf{x}) = \frac{1}{k} \sum_{i=1}^{k} \frac{\text{rank}(s_i(\mathbf{x}))}{n}
+\label{eq:rank_avg}
+\end{equation}
+where $\text{rank}(s_i(\mathbf{x}))$ returns the percentile rank of detector $i$'s score for instance $\mathbf{x}$. The ensemble AUROC is computed by applying the rank-averaged scores to a held-out test set with known labels.
+
+\subsection{Leave-one-out contribution}
+
+The leave-one-out (LOO) contribution of detector $i$ measures its marginal impact on ensemble performance:
+\begin{equation}
+C_i = \text{AUROC}_{\text{full}}(D_{\text{val}}) - \text{AUROC}_{-i}(D_{\text{val}})
+\label{eq:loo_contribution}
+\end{equation}
+where $\text{AUROC}_{\text{full}}(D_{\text{val}})$ is the ensemble AUROC on the validation set using all $k$ detectors, and $\text{AUROC}_{-i}(D_{\text{val}})$ is the ensemble AUROC on the same validation set with detector $i$ removed. The sign convention is: $C_i > 0$ indicates that removing detector $i$ \emph{decreases} validation performance, implying the detector is validation-helpful; $C_i < 0$ indicates that removing detector $i$ \emph{increases} validation performance, implying the detector is validation-harmful.
+
+\subsection{TestEffect}
+
+The TestEffect of detector $i$ measures its impact on held-out test performance:
+\begin{equation}
+\text{TestEffect}_i = \text{AUROC}_{-i}(D_{\text{test}}) - \text{AUROC}_{\text{full}}(D_{\text{test}})
+\label{eq:test_effect}
+\end{equation}
+where $D_{\text{test}}$ is the held-out test set. The sign convention is: $\text{TestEffect}_i > 0$ indicates that removing detector $i$ \emph{increases} test performance, meaning the detector is genuinely test-harmful; $\text{TestEffect}_i < 0$ indicates that removing detector $i$ \emph{decreases} test performance, meaning the detector is genuinely test-beneficial.
+
+\subsection{Sign conflict and material conflict}
+
+A \emph{sign conflict} occurs when the LOO contribution and TestEffect have the \emph{same} numeric sign, which implies \emph{opposite} semantic interpretations:
+\begin{equation}
+\text{sign conflict} \iff \text{sign}(C_i) = \text{sign}(\text{TestEffect}_i)
+\label{eq:sign_conflict}
+\end{equation}
+For example, $C_i < 0$ (LOO says harmful) and $\text{TestEffect}_i < 0$ (test says beneficial) constitutes a sign conflict: LOO recommends exclusion, but exclusion would hurt test performance.
+
+A \emph{material conflict} additionally requires that the magnitude exceeds a threshold:
+\begin{equation}
+\text{material conflict} \iff \text{sign conflict} \;\wedge\; \max(|C_i|, |\text{TestEffect}_i|) \geq \tau
+\label{eq:material_conflict}
+\end{equation}
+where $\tau$ is a configurable threshold. In our experiments, we use $\tau = 0.005$ (half the epsilon-VRG threshold).
+
+\subsection{Epsilon-VRG selection rule}
+
+Epsilon-VRG is a guardrail that distinguishes material negative contributions from noise-compatible small negative contributions:
+\begin{equation}
+\epsilon = \alpha \times \text{AUROC}_{\text{full}}(D_{\text{val}})
+\label{eq:epsilon}
+\end{equation}
+\begin{equation}
+\text{Retain detector } i \iff C_i > -\epsilon
+\label{eq:evrg_rule}
+\end{equation}
+where $\alpha = 0.01$ is a pre-specified constant. The interpretation is: detectors whose LOO contribution is slightly negative (above $-\epsilon$) are treated as redundancy-compatible and retained; detectors with materially negative contributions (below $-\epsilon$) are excluded. The epsilon threshold is computed on validation data only; no test labels are used.

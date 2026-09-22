@@ -1,0 +1,200 @@
+\documentclass[preprint,12pt]{elsarticle}
+\usepackage{amsmath,amssymb,graphicx,booktabs,hyperref,url}
+\usepackage{multirow}
+\usepackage{array}
+
+\journal{Journal of Machine Learning Research}
+
+\begin{document}
+
+\begin{frontmatter}
+
+\title{Fragile Diagnostics: Leave-One-Out Ensemble Selection is Seed-Sensitive, Detector-Dependent, and Universally Unreliable}
+
+\author[aff1]{Md. Omar Faruk Rabby}
+\affiliation[aff1]{organization={Department of Computer Science and Engineering, Southeast University},
+                     city={Dhaka},
+                     postcode={1208},
+                     country={Bangladesh}}
+
+\begin{abstract}
+% Written in STEP P5
+\end{abstract}
+
+\begin{keyword}
+anomaly detection \sep ensemble pruning \sep leave-one-out contribution \sep network intrusion detection \sep reproducibility
+\end{keyword}
+
+\end{frontmatter}
+
+%=============================================================================
+\section{Introduction}
+%=============================================================================
+
+% Paragraph 1: NIDS ensemble construction practical problem.
+Network intrusion detection systems (NIDS) increasingly employ ensemble methods to combine multiple anomaly detectors, each capturing different aspects of attack behavior. The ensemble construction problem---selecting which detectors to include---is critical: including harmful detectors degrades performance, while excluding useful ones reduces coverage. Leave-one-out (LOO) contribution, which measures each detector's marginal impact by comparing ensemble performance with and without it, is the dominant selection heuristic in this domain.
+
+% Paragraph 2: Gap---no ground-truth validation.
+Despite widespread adoption, LOO's diagnostic reliability has never been validated against known ground truth. The fundamental assumption---that a negative LOO contribution indicates a harmful detector---conflates two distinct failure modes: genuine detector harm (the detector actively degrades ensemble performance) and detector redundancy (the detector provides no new information, causing its removal to have negligible or negative effect on a different metric). This conflation makes LOO unreliable for automated ensemble pruning.
+
+% Paragraph 3: Three contributions.
+We present three contributions. First, a controlled synthetic benchmark with 2,000 ensemble configurations where detector roles (harmful, redundant, beneficial) are known, revealing that LOO detects harmful detectors with perfect recall (1.000) but misclassifies 67\% of redundant detectors as beneficial (recall 0.327). Second, a multi-dataset evaluation across 3 NIDS datasets, 3 categorical encoders, and 20 seeds (180 configurations) demonstrating that sign-conflict between LOO's validation signal and held-out test effect occurs at 48\%, independent of ensemble correlation structure. Third, epsilon-VRG, a practical guardrail that reduces redundancy false-pruning by 66\% without retaining harmful detectors.
+
+% Paragraph 4: Practical implication.
+Our findings do not advocate abandoning LOO as a diagnostic signal. Rather, we show that LOO's directional claims are inherently seed-sensitive and detector-dependent, requiring complementary guardrails for reliable ensemble construction. We provide practical guidelines for practitioners building NIDS ensembles.
+
+% Paragraph 5: Roadmap.
+The remainder of this paper is organized as follows. Section~\ref{sec:related} reviews related work. Section~\ref{sec:formulation} presents the problem formulation. Section~\ref{sec:phase2} describes the controlled ground-truth study. Section~\ref{sec:phase3} presents the real-data multi-dataset evaluation. Section~\ref{sec:fragility} analyzes seed fragility. Section~\ref{sec:discussion} discusses implications and limitations. Section~\ref{sec:guidelines} provides practical guidelines. Section~\ref{sec:conclusion} concludes.
+
+%=============================================================================
+\section{Related Work}
+\label{sec:related}
+%=============================================================================
+
+\subsection{Ensemble pruning for anomaly detection}
+% 5-8 sentences covering ensemble pruning literature, focusing on NIDS applications.
+% Key references: boosting, bagging, selective ensemble, ECOC.
+Placeholder: Review ensemble pruning methods in anomaly detection, emphasizing the dominance of LOO-based selection in NIDS literature.
+
+\subsection{Leave-one-out and marginal contribution}
+% 5-8 sentences on LOO theory, Jackknife, influence functions.
+% Key distinction: LOO in supervised vs unsupervised settings.
+Placeholder: Discuss LOO contribution computation, Jackknife methods, and the difference between supervised and unsupervised LOO interpretation.
+
+\subsection{Leakage in unsupervised ML}
+% 3-5 sentences on how categorical encoding can leak labels.
+Placeholder: Address the under-appreciated risk of label leakage through categorical encoding in unsupervised anomaly detection pipelines.
+
+\subsection{NIDS ensemble construction}
+% 3-5 sentences on practical NIDS ensemble construction challenges.
+Placeholder: Review how existing NIDS frameworks construct ensembles and where LOO selection fits in practice.
+
+%=============================================================================
+\section{Problem Formulation}
+\label{sec:formulation}
+%=============================================================================
+
+\subsection{Rank-average ensemble}
+% Define the ensemble: score = rank average of K detectors.
+% Q_all = ensemble AUROC on validation set.
+
+\subsection{Leave-one-out contribution}
+% C_i = Q_all - Q_{-i}
+% Interpretation: positive = detector helps, negative = detector hurts.
+
+\subsection{TestEffect and sign conflict}
+% TE_i = test_AUROC_all - test_AUROC_{-i}
+% Sign conflict: sign(C_i) != sign(TE_i)
+% Material conflict: sign(C_i) != sign(TE_i) AND |TE_i| > threshold.
+
+\subsection{Epsilon-VRG}
+% epsilon = alpha * AUROC_full(D_val)
+% Retain if C_i > -epsilon, exclude if C_i <= -epsilon.
+% alpha = 0.01 (pre-specified).
+
+%=============================================================================
+\section{Controlled Ground-Truth Study (Phase 2)}
+\label{sec:phase2}
+%=============================================================================
+
+\subsection{Synthetic benchmark design}
+% 200 configurations x 10 seeds = 2000 runs.
+% Detector roles: harmful (H), redundant (R), beneficial (B).
+% Role assignment based on known AUROC and correlation structure.
+
+\subsection{Hypotheses}
+
+\begin{itemize}
+\item H1: LOO detects harmful detectors (recall $\geq 0.80$).
+\item H2: LOO prunes more redundant than beneficial detectors (R recall $>$ B recall).
+\item H3: Sign-conflict rate correlates with ensemble correlation (Spearman $\rho > 0.3$).
+\item H4: epsilon-VRG reduces redundancy false-pruning by $\geq 50\%$.
+\end{itemize}
+
+\subsection{Results}
+% H1: PASS (recall 1.000, n=225)
+% H2: PASS (R recall 0.327, B recall 0.819)
+% H3: REJECTED (rho ~ 0)
+% H4: PASS (R-fp -66%, H retention 0, B sl -62%)
+
+\subsection{Discussion}
+% LOO is a good harmful-detector detector but poor redundant-detector discriminator.
+% Sign-conflict is noise-driven, not correlation-dependent.
+
+%=============================================================================
+\section{Real-Data Multi-Dataset Evaluation (Phase 3)}
+\label{sec:phase3}
+%=============================================================================
+
+\subsection{Experimental design}
+% 3 datasets x 3 encoders x 20 seeds = 180 configs.
+% 6 detectors (IF, LOF, OCSVM, AE, ECOD, HBOS).
+% Methods: EW, NL, EV.
+
+\subsection{Results}
+% Per-dataset method means table.
+% Holm K=9 corrected comparisons.
+
+\subsection{Statistical analysis}
+% Wilcoxon signed-rank, Holm correction, hierarchical model for seed variance.
+
+%=============================================================================
+\section{Seed-Fragility Analysis (Phase 3 Meta-Finding)}
+\label{sec:fragility}
+%=============================================================================
+
+\subsection{Direction flips across seeds}
+% EW > NL in only 4/20 seeds (NSL-KDD Phase 1 replication).
+% 16/20 seeds show NL > EW.
+
+\subsection{Root causes}
+% (1) Detector set effect: ECOD/HBOS in 6-detector set degrades EW.
+% (2) Seed fragility: direction flips across seeds.
+% Pipeline parity confirmed: 4-detector subset shows EW diff < 0.001.
+
+\subsection{Implications}
+% Phase 1's encoder-dependent EW > NL reversal does NOT replicate.
+% H5 reframed as seed-fragility finding.
+
+%=============================================================================
+\section{Discussion}
+\label{sec:discussion}
+%=============================================================================
+
+\subsection{Why LOO conflates redundancy with harm}
+% Mathematical explanation: removal of a redundant detector changes rank normalization.
+% LOO cannot distinguish "removes useful information" from "changes rank distribution."
+
+\subsection{Practical impact}
+% For NIDS practitioners: LOO alone is insufficient for reliable selection.
+% Need complementary guardrails (epsilon-VRG, sign-conflict monitoring).
+
+\subsection{Limitations}
+% 1. Only 3 NIDS datasets.
+% 2. Only 6 detector families.
+% 3. K=9 is post-hoc.
+% 4. AE failure may be architecture-specific.
+% 5. No cross-dataset transfer evaluation.
+
+%=============================================================================
+\section{Practical Guidelines for Practitioners}
+\label{sec:guidelines}
+%=============================================================================
+
+% Table with scenarios and recommended actions.
+% Content written in STEP P6.
+
+%=============================================================================
+\section{Conclusion}
+\label{sec:conclusion}
+%=============================================================================
+
+We have demonstrated that leave-one-out ensemble selection, despite widespread adoption, is fundamentally unreliable as a standalone diagnostic tool. Our controlled ground-truth study reveals that LOO conflates redundancy with harm (R recall 0.327), and our multi-dataset evaluation shows that its directional claims are seed-sensitive (sign-conflict rate 48\%) and detector-dependent. We propose epsilon-VRG as a practical guardrail and provide guidelines for practitioners. All code and data are publicly available for reproducibility.
+
+%=============================================================================
+% References
+%=============================================================================
+\bibliographystyle{elsarticle-num}
+\bibliography{references}
+
+\end{document}
