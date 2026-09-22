@@ -44,7 +44,7 @@ We present three contributions. First, a controlled synthetic benchmark with 2,0
 Our findings do not advocate abandoning LOO as a diagnostic signal. Rather, we show that LOO's directional claims are inherently seed-sensitive and detector-dependent, requiring complementary guardrails for reliable ensemble construction. We provide practical guidelines for practitioners building NIDS ensembles.
 
 % Paragraph 5: Roadmap.
-The remainder of this paper is organized as follows. Section~\ref{sec:related} reviews related work. Section~\ref{sec:formulation} presents the problem formulation. Section~\ref{sec:phase2} describes the controlled ground-truth study. Section~\ref{sec:phase3} presents the real-data multi-dataset evaluation. Section~\ref{sec:fragility} analyzes seed fragility. Section~\ref{sec:discussion} discusses implications and limitations. Section~\ref{sec:guidelines} provides practical guidelines. Section~\ref{sec:conclusion} concludes.
+The remainder of this paper is organized as follows. Section~\ref{sec:related} reviews related work. Section~\ref{sec:formulation} presents the problem formulation. Section~\ref{sec:phase2} describes the controlled ground-truth study. Section~\ref{sec:phase3} presents the real-data multi-dataset evaluation. Section~\ref{sec:fragility} analyzes seed fragility. Section~\ref{sec:phase4} proposes uncertainty-aware ensemble selection. Section~\ref{sec:discussion} discusses implications and limitations. Section~\ref{sec:guidelines} provides practical guidelines. Section~\ref{sec:conclusion} concludes.
 
 %=============================================================================
 \section{Related Work}
@@ -155,6 +155,23 @@ Placeholder: Review how existing NIDS frameworks construct ensembles and where L
 \subsection{Implications}
 % Phase 1's encoder-dependent EW > NL reversal does NOT replicate.
 % H5 reframed as seed-fragility finding.
+
+%=============================================================================
+\section{Uncertainty-Aware Ensemble Selection}
+\label{sec:phase4}
+%=============================================================================
+
+\subsection{Motivation}
+% Fixed epsilon is arbitrary; can we do better?
+
+\subsection{Uncertainty-aware selection}
+% Bootstrap-CI, sign+materiality, inner-tolerance.
+
+\subsection{Comparison against fixed epsilon-VRG}
+% Table with method comparison.
+
+\subsection{When to use uncertainty-aware selection}
+% Recommendations by scenario.
 
 %=============================================================================
 \section{Discussion}
