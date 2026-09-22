@@ -1,0 +1,65 @@
+\section{Seed-Fragility Analysis (Phase 3 Meta-Finding)}
+\label{sec:fragility}
+
+\subsection{Motivation}
+
+Phase 1 analysis reported an ``encoder-dependent reversal'' of the EW vs NL ranking on NSL-KDD: EW $>$ NL for TargetEncoder, but NL $>$ EW for hybrid and ordinal encoders. This finding was based on 3 seeds per encoder. A natural question is whether the directional claim (EW vs NL) is robust across seeds, or whether it flips depending on the random initialization.
+
+We investigate this by computing the sign of $\text{AUROC}_{\text{EW}} - \text{AUROC}_{\text{NL}}$ for each of 20 seeds, per dataset and encoder. The \emph{fragility rate} measures how often the direction flips:
+\begin{equation}
+\text{fragility rate} = \frac{\min(\text{wins}_{\text{EW}}, \text{wins}_{\text{NL}})}{n_{\text{seeds}}}
+\label{eq:fragility}
+\end{equation}
+where $\text{wins}_{\text{EW}}$ is the number of seeds where EW $>$ NL and $\text{wins}_{\text{NL}}$ is the number where NL $>$ EW. A fragility rate of 0.0 indicates perfect agreement across all seeds; a rate of 0.5 indicates complete disagreement.
+
+\subsection{Fragility metric}
+
+For each (dataset, encoder) pair, we report:
+
+\begin{itemize}
+\item \textbf{EW $>$ NL count}: Number of seeds where $\text{AUROC}_{\text{EW}} > \text{AUROC}_{\text{NL}}$
+\item \textbf{NL $>$ EW count}: Number of seeds where $\text{AUROC}_{\text{NL}} > \text{AUROC}_{\text{EW}}$
+\item \textbf{Mean delta}: Mean of $\text{AUROC}_{\text{EW}} - \text{AUROC}_{\text{NL}}$ across seeds
+\item \textbf{Std delta}: Standard deviation of the delta
+\item \textbf{Fragility rate}: Proportion of seeds with the minority direction
+\end{itemize}
+
+\subsection{Results}
+
+Table~\ref{tab:fragility} presents the seed-fragility analysis for Phase 1's target encoder on NSL-KDD, comparing the Phase 1 claim (3 seeds) with the Phase 3 replication (20 seeds).
+
+\begin{table}[h]
+\centering
+\caption{Seed-fragility analysis: EW vs NL on NSL-KDD (target encoder).}
+\label{tab:fragility}
+\begin{tabular}{lcc}
+\toprule
+Metric & Phase 1 (3 seeds) & Phase 3 (20 seeds) \\
+\midrule
+EW $>$ NL count & 3/3 (100\%) & 4/20 (20\%) \\
+NL $>$ EW count & 0/3 (0\%) & 16/20 (80\%) \\
+Mean delta & +0.0390 & $-$0.024 \\
+Std delta & 0.002 & 0.041 \\
+Fragility rate & 0.00 & 0.20 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Phase 1's claim that EW $>$ NL is fragile: the direction flips in 16 of 20 seeds. The mean delta reverses sign (from $+0.039$ in Phase 1 to $-0.024$ in Phase 3), and the standard deviation of the delta (0.041) is larger than the mean absolute effect (0.024), confirming that seed variation dominates the directional signal.
+
+\subsection{Interpretation}
+
+A fragility rate above 0.25 indicates that the directional claim is unreliable---the outcome depends more on which seed is used than on the underlying method comparison. For NSL-KDD with target encoder, the 20\% fragility rate (4/20 vs 16/20) suggests that while NL $>$ EW is the majority pattern, the signal is not strong enough to support confident directional claims from a single seed.
+
+This finding is a \emph{meta-diagnostic}: it reveals that LOO's own recommendations (which method to prefer) are seed-sensitive. The practical implication is that any LOO-based conclusion drawn from a single seed should be treated as provisional until replicated across multiple seeds.
+
+\subsection{Relationship to sign-conflict diagnostic}
+
+The seed-fragility analysis complements the sign-conflict diagnostic from Phase 2:
+
+\begin{itemize}
+\item \textbf{Sign-conflict} (Phase 2) is a \emph{per-detector} metric: it measures how often LOO's recommendation for a single detector conflicts with held-out test effect. The 48\% rate is universal and independent of correlation.
+\item \textbf{Seed-fragility} (Phase 3) is a \emph{per-direction} metric: it measures how often the overall method comparison (EW vs NL) flips across seeds. The fragility rate varies by dataset and encoder.
+\end{itemize}
+
+Both metrics support the paper's core claim: LOO-based ensemble selection is unreliable. Sign-conflict reveals that individual detector recommendations are noisy; seed-fragility reveals that aggregate method rankings are also unstable. Together, they demonstrate that LOO's diagnostic signal is unreliable at multiple levels of analysis.

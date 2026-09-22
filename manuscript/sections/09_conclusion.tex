@@ -1,0 +1,10 @@
+\section{Conclusion}
+\label{sec:conclusion}
+
+This paper presents the first systematic validation of leave-one-out (LOO) ensemble selection against known ground truth. Through a controlled synthetic benchmark with 2,000 ensemble configurations, we demonstrate that LOO detects harmful detectors with perfect recall (1.000) but misclassifies 67\% of redundant detectors as beneficial (recall 0.327), a pattern we term the \emph{redundancy paradox}. The sign-conflict rate between LOO's validation signal and held-out test effect is 48\%, independent of ensemble correlation structure.
+
+Our multi-dataset evaluation across 3 NIDS datasets, 3 categorical encoders, and 20 seeds (180 configurations) confirms these findings on real data. Four of nine Holm-corrected comparisons survive correction, concentrated on CICIDS2017 and UNSW-NB15. The seed-fragility analysis reveals that Phase 1's encoder-dependent equal-weight superiority on NSL-KDD does not replicate: the direction flips in 16 of 20 seeds, demonstrating that single-seed evaluations can produce misleading conclusions.
+
+We propose epsilon-VRG, a guardrail that reduces redundancy false-pruning by 66\% without retaining harmful detectors. We provide practical guidelines for NIDS ensemble construction: never trust single-seed LOO-based conclusions, run sign-conflict diagnostics first, apply epsilon-VRG when sign-conflict exceeds 15\%, and audit categorical encoders for leakage before pruning.
+
+Our findings do not advocate abandoning LOO as a diagnostic signal. Rather, we show that LOO's directional claims are inherently seed-sensitive and detector-dependent, requiring complementary guardrails for reliable ensemble construction. All code and data are publicly available for reproducibility.

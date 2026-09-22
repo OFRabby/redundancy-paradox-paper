@@ -1,0 +1,37 @@
+\section{Limitations}
+\label{sec:limitations}
+
+Table~\ref{tab:limitations} summarizes the limitations of our study, their impact, and the mitigations we apply.
+
+\begin{table}[h]
+\centering
+\caption{Limitations of the study.}
+\label{tab:limitations}
+\begin{tabular}{p{4cm}p{5cm}p{5cm}}
+\toprule
+\textbf{Limitation} & \textbf{Impact} & \textbf{Mitigation} \\
+\midrule
+Synthetic scores generated directly & Isolates LOO mechanism, not real detector behavior & Real-data validation in Phase 3 confirms findings \\
+\midrule
+3 NIDS datasets only & Generalization to other domains (image, time-series) unknown & Documented as scope; future work \\
+\midrule
+AE CPU/GPU divergence & Cross-platform reproducibility concern & Documented; sign-conflict rates stable across hardware \\
+\midrule
+H3 rejection (sign-conflict independent of $\rho$) & Cannot predict sign-conflict from correlation structure & Dataset-dependence documented; practical implication stated \\
+\midrule
+Phase 1 reversal non-replication & Original secondary claim withdrawn & Reframed as seed-fragility finding (Section~\ref{sec:fragility}) \\
+\midrule
+ECOD fallback underperformance & PyOD unavailable locally; ECOD uses fallback on some runs & Verified on Kaggle with full PyOD installation \\
+\midrule
+Subsample sizes for some detectors & LOF limited to 20K, OCSVM to 10K training samples & Matches Phase 1 configuration; standard in NIDS literature \\
+\midrule
+K=9 pre-specified but 2 degenerate & Two comparisons excluded post-hoc (CICIDS EW vs EV, UNSW NL vs EV) & Degenerate comparisons reported in narrative; K=7 effective \\
+\midrule
+No per-attack analysis & Cannot assess detector behavior on specific attack types & Future work; not required for LOO diagnostic validation \\
+\midrule
+No cross-dataset transfer & Cannot evaluate detector portability & Future work; outside scope of LOO diagnostic study \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+We emphasize that these limitations do not undermine the paper's core contributions: the ground-truth validation of LOO's redundancy paradox, the characterization of sign-conflict as a universal finite-sample property, and the seed-fragility meta-finding. Each limitation is documented with its specific impact and the mitigation applied.

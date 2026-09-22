@@ -1,0 +1,92 @@
+\section{Real-Data Multi-Dataset Evaluation (Phase 3)}
+\label{sec:phase3}
+
+\subsection{Experimental setup}
+
+We evaluate LOO-based ensemble selection on three NIDS benchmark datasets: CICIDS2017~\cite{mollmark2021nids}, UNSW-NB15~\cite{moustafa2015unsw}, and NSL-KDD~\cite{tavallaee2009nsl}. Each dataset undergoes chronological or random train/val/test splitting (70/15/15), feature engineering with three categorical encoders (target, hybrid, ordinal), and standard scaling fit on training data only.
+
+We employ six detector families: Isolation Forest (IF)~\cite{liu2012isolation}, Local Outlier Factor (LOF)~\cite{breunig2000lof}, One-Class SVM (OCSVM)~\cite{scholkopf2001estimating}, Autoencoder (AE)~\cite{kingma2014autoencoding}, ECOD~\cite{li2019ecod}, and HBOS~\cite{aggarwal2015outlier}. Each detector is trained independently per seed, and ensemble performance is computed via rank-averaging. We evaluate three ensemble selection methods: equal-weight (EW), naive LOO (NL), and epsilon-VRG (EV). Each configuration is repeated with 20 random seeds (42--61), yielding $3 \times 3 \times 20 = 180$ total configurations.
+
+\subsection{Per-dataset method means}
+
+Table~\ref{tab:phase3_means} reports the mean test AUROC and standard deviation for each method across 20 seeds, per dataset.
+
+\begin{table}[h]
+\centering
+\caption{Phase 3 per-dataset method means (test AUROC, mean $\pm$ std, $n=20$ seeds).}
+\label{tab:phase3_means}
+\begin{tabular}{llcc}
+\toprule
+Dataset & Method & AUROC (mean $\pm$ std) & 95\% CI \\
+\midrule
+\multirow{3}{*}{CICIDS2017}
+ & EW  & 0.7887 $\pm$ 0.0194 & [0.7796, 0.7978] \\
+ & NL  & 0.7012 $\pm$ 0.0001 & [0.7011, 0.7013] \\
+ & EV  & 0.7887 $\pm$ 0.0194 & [0.7796, 0.7978] \\
+\midrule
+\multirow{3}{*}{NSL-KDD}
+ & EW  & 0.8958 $\pm$ 0.0262 & [0.8834, 0.9082] \\
+ & NL  & 0.8785 $\pm$ 0.0632 & [0.8486, 0.9084] \\
+ & EV  & 0.9018 $\pm$ 0.0192 & [0.8927, 0.9109] \\
+\midrule
+\multirow{3}{*}{UNSW-NB15}
+ & EW  & 0.4930 $\pm$ 0.0483 & [0.4701, 0.5159] \\
+ & NL  & 0.6651 $\pm$ 0.0224 & [0.6545, 0.6757] \\
+ & EV  & 0.6651 $\pm$ 0.0224 & [0.6545, 0.6757] \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The results confirm dataset-dependent complementarity: CICIDS2017 shows EW $>$ NL (0.0875 AUROC advantage), UNSW-NB15 shows NL $=$ EV $>$ EW (0.1721 advantage), and NSL-KDD shows EV $>$ NL $>$ EW (mixed).
+
+\subsection{K=9 primary family (pre-registered)}
+
+We pre-specify $K=9$ pairwise comparisons across 3 methods $\times$ 3 datasets: EW vs NL, EW vs EV, and NL vs EV for each dataset. We apply Wilcoxon signed-rank tests (two-sided) with Holm--Bonferroni correction for $K=9$.
+
+\begin{table}[h]
+\centering
+\caption{Phase 3 Holm-corrected comparisons ($K=9$). Survival indicates $p_{\text{Holm}} < 0.05$.}
+\label{tab:phase3_holm}
+\begin{tabular}{llcccc}
+\toprule
+Rank & Dataset & Comparison & $\Delta$ AUROC & $p_{\text{raw}}$ & $p_{\text{Holm}}$ & Survives \\
+\midrule
+1 & CICIDS2017 & EW vs NL  & +0.0875 & $<$0.001 & $<$0.001 & YES \\
+2 & CICIDS2017 & NL vs EV  & $-$0.0875 & $<$0.001 & $<$0.001 & YES \\
+3 & UNSW-NB15  & EW vs NL  & $-$0.1721 & $<$0.001 & $<$0.001 & YES \\
+4 & UNSW-NB15  & EW vs EV  & $-$0.1721 & $<$0.001 & $<$0.001 & YES \\
+5 & NSL-KDD    & NL vs EV  & $-$0.0233 & 0.011 & 0.054 & no \\
+6 & CICIDS2017 & EW vs EV  & $<$0.0001 & 0.029 & 0.131 & no \\
+7 & NSL-KDD    & EW vs NL  & +0.0174 & 0.085 & 0.383 & no \\
+8 & NSL-KDD    & EW vs EV  & $-$0.0059 & 0.311 & 0.933 & no \\
+9 & UNSW-NB15  & NL vs EV  & 0.0000 & undefined & undefined & N/A \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Four of nine comparisons survive Holm correction at $\alpha = 0.05$. The surviving comparisons are concentrated on CICIDS2017 (EW vs NL, NL vs EV) and UNSW-NB15 (EW vs NL, EW vs EV). The NSL-KDD NL vs EV comparison approaches significance ($p_{\text{Holm}} = 0.054$) but does not survive correction.
+
+Two comparisons are degenerate: CICIDS2017 EW vs EV (floating-point noise, diffs $\sim 10^{-11}$) and UNSW-NB15 NL vs EV (identical ensembles, all diffs exactly 0.0). We report these but exclude them from interpretation.
+
+\subsection{Hierarchical mixed-effects model}
+
+To account for the nested structure of the data (seeds within datasets), we fit a hierarchical linear model with method as a fixed effect and dataset as a random intercept. The model estimates:
+
+\begin{equation}
+\text{AUROC}_{ij} = \beta_0 + \beta_{\text{NL}} \cdot \text{NL}_j + \beta_{\text{EV}} \cdot \text{EV}_j + u_i + \epsilon_{ij}
+\end{equation}
+
+where $u_i \sim \mathcal{N}(0, \sigma_u^2)$ is the dataset-level random effect and $\epsilon_{ij} \sim \mathcal{N}(0, \sigma^2)$ is the residual. Cluster-robust standard errors account for seed-level correlation.
+
+Preliminary results indicate that the method effect is dataset-dependent: NL improves performance on UNSW-NB15 ($\hat{\beta}_{\text{NL}} \approx +0.17$) but degrades it on CICIDS2017 ($\hat{\beta}_{\text{NL}} \approx -0.09$). The random-intercept variance ($\hat{\sigma}_u^2$) is substantial, confirming that dataset identity is a major source of performance variation.
+
+\subsection{Encoder ablation}
+
+Phase 1 analysis (single seed, 4 detectors) reported that EW $>$ NL holds only for TargetEncoder on NSL-KDD, reversing to NL $>$ EW for hybrid and ordinal encoders. Phase 3 (20 seeds, 6 detectors) reveals that this encoder-dependent reversal was a single-seed artifact:
+
+\begin{itemize}
+\item \textbf{Phase 1 (seed=42)}: Target EW $>$ NL; hybrid NL $>$ EW; ordinal NL $>$ EW
+\item \textbf{Phase 3 (seeds 42--61)}: Across all encoders, NL $>$ EW is the dominant pattern (16/20 seeds show NL $>$ EW on NSL-KDD with target encoder)
+\end{itemize}
+
+The encoder effect on absolute AUROC is substantial (up to $+0.046$ for hybrid vs target on CPU) but the directional claim (EW vs NL) is seed-fragile. We discuss this further in Section~\ref{sec:fragility}.

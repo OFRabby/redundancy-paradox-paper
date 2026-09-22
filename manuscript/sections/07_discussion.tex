@@ -1,0 +1,39 @@
+\section{Discussion}
+\label{sec:discussion}
+
+\subsection{What the study reveals}
+
+Our two-phase evaluation reveals that leave-one-out ensemble selection is unreliable in three distinct ways. First, at the \emph{per-detector} level, sign-conflict between LOO's validation signal and held-out test effect occurs at 48\%---nearly half of all LOO directional decisions are unreliable. Second, at the \emph{per-mechanism} level, LOO conflates redundancy with harm: it detects harmful detectors perfectly (recall 1.000) but misclassifies 67\% of redundant detectors as beneficial (recall 0.327). Third, at the \emph{per-direction} level, LOO's aggregate method rankings (EW vs NL) are seed-fragile: Phase 1's encoder-dependent reversal does not replicate across 20 seeds.
+
+The 48\% sign-conflict rate is not a methodological artifact but a universal finite-sample property. Our synthetic benchmark (Phase 2) demonstrates that this rate is flat across inter-detector correlation ($\rho \in \{0, 0.3, 0.6, 0.9\}$, Spearman $\rho \approx 0$). The mechanism is structural: rank averaging normalizes out the absolute score differences that distinguish redundant from beneficial detectors, making LOO sensitive to rank-distribution changes rather than genuine quality differences.
+
+\subsection{Why behavior differs across settings}
+
+The dataset-dependent complementarity observed in Phase 3---EW $>$ NL on CICIDS2017, NL $>$ EW on UNSW-NB15, mixed on NSL-KDD---reflects genuine differences in detector behavior across datasets, not LOO's diagnostic quality. On CICIDS2017, the four detectors have complementary strengths that LOO correctly identifies. On UNSW-NB15, LOF and AE are genuinely harmful, and NL correctly excludes them. On NSL-KDD, the detector roles are ambiguous, and LOO's decisions are seed-dependent.
+
+The encoder effect on EW vs NL, which appeared substantial in Phase 1 (single seed), diminishes in Phase 3 (20 seeds). The absolute AUROC shift between encoders is real (up to $+0.046$ for hybrid vs target), but the directional claim (which method is better) is overwhelmed by seed variation. This demonstrates that encoder choice affects \emph{magnitude} but not \emph{direction} of LOO's diagnostic signal.
+
+\subsection{Relation to broader literature}
+
+The ensemble pruning literature assumes that LOO provides a valid estimate of each detector's marginal contribution. Our work falsifies this assumption: LOO's sign-conflict rate of 48\% means that its directional recommendations are no better than random for nearly half of all detectors. This finding has implications beyond NIDS, as rank-averaging ensembles are common in other anomaly detection domains (fraud detection, medical diagnosis, manufacturing quality control).
+
+The leakage literature focuses on train-time contamination---preventing labels from entering feature engineering. Our Phase 1 analysis reveals a downstream behavioral effect: TargetEncoder leakage propagates through unsupervised detectors to produce encoder-dependent ranking reversals. While this specific finding does not replicate across seeds (Section~\ref{sec:fragility}), the general mechanism---leakage through feature engineering affecting unsupervised pipeline behavior---is under-studied.
+
+\subsection{What a practitioner should do}
+
+Based on our findings, we recommend the following protocol for NIDS ensemble construction:
+
+\begin{enumerate}
+\item \textbf{Never trust single-seed LOO-based conclusions}. Replicate across at least 10 seeds before making pruning decisions.
+\item \textbf{Run sign-conflict diagnostic first}. Compute the per-detector sign-conflict rate. If it exceeds 15\%, the ensemble contains detectors whose contribution direction is uncertain.
+\item \textbf{Apply epsilon-VRG (or uncertainty-aware selection)} when sign-conflict is high. Epsilon-VRG reduces redundancy false-pruning by 66\% without retaining harmful detectors.
+\item \textbf{Audit categorical encoders for leakage} before any pruning. TargetEncoder and similar label-aware encoders can propagate leakage through unsupervised pipelines.
+\end{enumerate}
+
+\subsection{Limitations of our approach}
+
+Our synthetic benchmark is designed to isolate LOO's diagnostic mechanism, not to replicate real detector behavior. Scores are generated directly, eliminating confounding from preprocessing, feature engineering, and detector hyperparameters. While this design enables clean causal inference about LOO's mechanism, it limits generalizability to specific detector architectures.
+
+We evaluate on three NIDS datasets. Generalization to other domains (e.g., image anomaly detection, time-series anomaly detection) is not established. The six detector families we evaluate are standard in NIDS but represent a small fraction of the anomaly detection literature.
+
+Autoencoder hardware sensitivity (CPU vs GPU divergence) is documented but does not affect our qualitative conclusions: sign-conflict rates are stable across hardware. The non-replication of Phase 1's encoder-dependent reversal is transparently reported as a fragility finding, not suppressed.
