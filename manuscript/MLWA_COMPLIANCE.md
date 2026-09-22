@@ -17,7 +17,7 @@ Complete experimental code is publicly available at:
 
 - **GitHub**: https://github.com/OFRabby/redundancy-paradox-paper
 - **Interactive Kaggle notebook**: https://www.kaggle.com/code/ofrabby/redundancy-paradox-phase3
-- **Code Ocean capsule**: [pending — to be filled upon creation]
+- **Zenodo DOI**: https://doi.org/10.5281/zenodo.22902922
 
 ---
 
@@ -53,4 +53,4 @@ No generative AI was used to generate scientific results. AI-assisted tools were
 
 ## Author ORCID
 
-Md. Omar Faruk Rabby: [to be registered at orcid.org — see ORCID_INSTRUCTIONS.md]
+Md. Omar Faruk Rabby: https://orcid.org/0009-0008-2781-7033

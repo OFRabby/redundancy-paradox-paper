@@ -23,8 +23,8 @@ This paper demonstrates an improvement to the way existing machine learning rese
 All code, data, and experimental configurations are publicly available:
 
 - **Code**: https://github.com/OFRabby/redundancy-paradox-paper
+- **Zenodo DOI**: https://doi.org/10.5281/zenodo.22902922
 - **Data**: https://www.kaggle.com/datasets/ofrabby/anomaly-detector-data
-- **Reproducibility badge**: Pending (Code Ocean capsule to be created)
 - **Interactive notebook**: https://www.kaggle.com/code/ofrabby/redundancy-paradox-phase3
 
 ## Prior Submission Note

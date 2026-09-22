@@ -23,8 +23,8 @@
 
 ## Reproducibility
 
-- [ ] GitHub repo public + tested: https://github.com/OFRabby/redundancy-paradox-paper
-- [ ] Code Ocean capsule + badge (pending)
+- [x] GitHub repo public + tested: https://github.com/OFRabby/redundancy-paradox-paper
+- [x] Zenodo DOI: https://doi.org/10.5281/zenodo.22902922
 - [ ] Kaggle notebook public: https://www.kaggle.com/code/ofrabby/redundancy-paradox-phase3
 
 ## Pre-Submission
