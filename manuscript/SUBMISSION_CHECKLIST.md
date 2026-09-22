@@ -26,10 +26,11 @@
 - [x] GitHub repo public + tested: https://github.com/OFRabby/redundancy-paradox-paper
 - [x] Zenodo DOI: https://doi.org/10.5281/zenodo.22902922
 - [ ] Kaggle notebook public: https://www.kaggle.com/code/ofrabby/redundancy-paradox-phase3
+- [ ] Mendeley Data DOI: Optional — deferred to post-submission
 
 ## Pre-Submission
 
-- [ ] ORCID registered
+- [x] ORCID registered: https://orcid.org/0009-0008-2781-7033
 - [ ] Pre-submission inquiry sent (optional)
 - [ ] All placeholder figures replaced with real Phase 3 data
 - [ ] `PHASE3_RESULTS.md` filled with actual numbers
