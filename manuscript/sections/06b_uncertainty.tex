@@ -1,0 +1,44 @@
+\section{Uncertainty-Aware Ensemble Selection}
+\label{sec:phase4}
+
+\subsection{Motivation}
+
+The epsilon-VRG guardrail (Section~\ref{sec:phase2}) reduces redundancy false-pruning by 66\% with zero harmful retention. However, the retention threshold $\epsilon = \alpha \cdot \text{AUROC}_{\text{baseline}}$ is set by a fixed hyperparameter ($\alpha = 0.01$). A natural question is whether a more principled threshold---one derived from the uncertainty of each detector's contribution estimate---can improve the redundancy-accuracy tradeoff.
+
+\subsection{Uncertainty-aware selection}
+
+We propose three alternatives to fixed epsilon-VRG:
+
+\paragraph{Method A: Bootstrap-CI LOO.}
+For each detector $i$, we compute a bootstrap confidence interval on $C_i$ by resampling the validation data $B = 10{,}000$ times. We retain detector $i$ unless the 5th percentile (lower CI bound) falls below $-\delta_{\min}$ (where $\delta_{\min} = 0.01$). This method retains detectors unless the bootstrap provides strong evidence of material negative contribution.
+
+\paragraph{Method B: Sign + Materiality (oracle).}
+We retain detector $i$ unless all three conditions hold: $|C_i| \geq \delta_{\min}$ (material LOO signal), $C_i < 0$ (LOO says harmful), and $|\text{TestEffect}_i| \geq \delta_{\min}$ (test confirms material effect). This is an oracle method requiring held-out test labels; we include it as an ablation baseline.
+
+\paragraph{Method C: Inner-Validation Tolerance.}
+We split training data into inner-train (80\%) and inner-val (20\%), select $\epsilon$ by minimizing false-pruning on inner-val, and apply the selected $\epsilon$ to outer validation. This method is data-dependent and not evaluated in the current phase.
+
+\subsection{Comparison against fixed epsilon-VRG}
+
+Table~\ref{tab:phase4_comparison} compares the three methods on synthetic data (20 configurations $\times$ 3 seeds = 60 runs).
+
+\begin{table}[h]
+\centering
+\caption{Uncertainty-aware selection vs. fixed epsilon-VRG (synthetic, $n=60$).}
+\label{tab:phase4_comparison}
+\begin{tabular}{lcccc}
+\toprule
+Method & Retained (mean) & Redundant Retained & Signal Loss & Harmful Retained \\
+\midrule
+Epsilon-VRG & 3.05 & 0.91 & 0.049 & 0.000 \\
+Bootstrap-CI & 1.68 & 0.51 & 0.072 & 0.000 \\
+Sign+Materiality & 3.70 & 1.11 & 0.038 & 0.000 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Epsilon-VRG remains the best balanced method: it retains 3.05 detectors (61\% of the 5-detector ensemble) with 0.049 signal loss. Bootstrap-CI is more conservative (1.68 retained, 47\% fewer redundant detectors) but at the cost of 47\% higher signal loss. Sign+Materiality is the most permissive (3.70 retained) but requires held-out test labels.
+
+\subsection{When to use uncertainty-aware selection}
+
+For general deployment, epsilon-VRG remains recommended: it requires no bootstrap overhead, has a single interpretable hyperparameter ($\alpha$), and achieves the best balance of pruning and retention. Bootstrap-CI is preferred when the computational budget allows and conservative pruning is desired (e.g., high-stakes domains where false-pruning is costly). Sign+Materiality serves as an ablation baseline, not a deployable method.
