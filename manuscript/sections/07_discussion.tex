@@ -37,3 +37,5 @@ Our synthetic benchmark is designed to isolate LOO's diagnostic mechanism, not t
 We evaluate on three NIDS datasets. Generalization to other domains (e.g., image anomaly detection, time-series anomaly detection) is not established. The six detector families we evaluate are standard in NIDS but represent a small fraction of the anomaly detection literature.
 
 Autoencoder hardware sensitivity (CPU vs GPU divergence) is documented but does not affect our qualitative conclusions: sign-conflict rates are stable across hardware. The non-replication of Phase 1's encoder-dependent reversal is transparently reported as a fragility finding, not suppressed.
+
+While principled uncertainty-aware methods exist for detector selection, our systematic exploration (Section~\ref{sec:phase4}) shows that fixed epsilon-VRG achieves the best balance of false-pruning reduction and signal preservation. We report this null result rather than overclaiming methodological novelty.

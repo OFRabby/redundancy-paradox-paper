@@ -119,3 +119,9 @@ python -m pytest tests/ -v
 ```
 
 **Environment**: Python 3.11, PyTorch 2.x (GPU), scikit-learn 1.3+, PyOD 3.6.5.
+
+---
+
+## 9. "What is the methodological contribution beyond the diagnostic? Epsilon-VRG is just a tolerance threshold."
+
+**Response:** We acknowledge that epsilon-VRG is simple. Section 6b presents our methodological exploration: we implement and evaluate 4 uncertainty-aware alternatives (bootstrap-CI on C_i, sign+materiality rule, inner-validation tolerance selection, Bayesian shrinkage). On Phase 2 ground truth, fixed epsilon-VRG is the best balanced method: it reduces redundancy false-pruning by 66% while retaining 0 harmful detectors. Bootstrap-CI is more conservative (retains 1.77 vs 3.19 detectors on average) but incurs 47% higher signal loss. We report this null result transparently. The paper's primary contribution is diagnostic — validating and falsifying LOO's diagnostic claims on controlled ground truth. The uncertainty-aware exploration demonstrates that the simple method is empirically justified, not arbitrary.
