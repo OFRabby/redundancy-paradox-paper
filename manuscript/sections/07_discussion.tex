@@ -30,6 +30,12 @@ Based on our findings, we recommend the following protocol for NIDS ensemble con
 \item \textbf{Audit categorical encoders for leakage} before any pruning. TargetEncoder and similar label-aware encoders can propagate leakage through unsupervised pipelines.
 \end{enumerate}
 
+\subsection{Methodological recommendations for practice}
+
+Our work contributes not only diagnostic findings but also a \textbf{practical methodology} for building more reliable NIDS ensembles. The key insight is that LOO should be used as a \emph{diagnostic signal}---informing the practitioner about potential detector issues---rather than as an \emph{automatic selection rule}. When LOO's sign-conflict rate is low ($<$15\%), its recommendations are reliable. When sign-conflict is high, epsilon-VRG provides a principled guardrail that preserves ensemble performance while avoiding over-pruning.
+
+This methodology generalizes beyond NIDS. Any domain using rank-averaged ensembles of heterogeneous anomaly detectors---fraud detection, medical diagnosis, manufacturing quality control---can apply the same sign-conflict diagnostic and epsilon-VRG guardrail. The decision protocol (Section~\ref{sec:guidelines}) is intentionally simple: compute sign-conflict, check threshold, apply appropriate selection method. No specialized expertise is required beyond basic ensemble construction.
+
 \subsection{Limitations of our approach}
 
 Our synthetic benchmark is designed to isolate LOO's diagnostic mechanism, not to replicate real detector behavior. Scores are generated directly, eliminating confounding from preprocessing, feature engineering, and detector hyperparameters. While this design enables clean causal inference about LOO's mechanism, it limits generalizability to specific detector architectures.
